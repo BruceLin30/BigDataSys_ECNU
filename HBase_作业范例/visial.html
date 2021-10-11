@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset=utf-8 />
+  <title>mobike</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.js'></script>
+  <link href='https://api.mapbox.com/mapbox.js/v3.3.1/mapbox.css' rel='stylesheet' />
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    #map {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='map'></div>
+  <!-- 载入D3库 -->
+  <script src="d3.v3.min.js"></script>
+
+  <script>
+    function dist(addr) {
+      var dist = Math.pow(addr["lat"] - 121.5, 2) + Math.pow(addr["lng"] - 31.4, 2);
+      return Math.sqrt(dist)
+    }
+
+    L.mapbox.accessToken = 'pk.eyJ1IjoiZXhhbXBsZXMiLCJhIjoiY2p1dHRybDR5MGJuZjQzcGhrZ2doeGgwNyJ9.a-vxW4UaxOoUMWUTGnEArw';
+
+    var mapboxTiles = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/{z}/{x}/{y}?access_token=' + L.mapbox.accessToken, {
+      //attribution: '© <a href="https://www.mapbox.com/feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      tileSize: 512,
+      zoomOffset: -1
+    });
+
+    var map = L.map('map')
+      .addLayer(mapboxTiles)
+      .setView([31.4, 121.5], 10);
+
+    d3.csv("mobike.csv", function (data) {
+      //此文件载入操作是异步，以下代码在文件完全载入后触发
+      console.log(data);
+      for (var i = 0; i < 500; i++) {
+        L.marker([data[i]["lat"], data[i]["lng"]]).addTo(map)
+          .bindPopup(data[i]["bikeID"] + "<br>" + dist(data[i]))
+          .openPopup();
+      }
+    });
+
+  </script>
+</body>
+
+</html>
